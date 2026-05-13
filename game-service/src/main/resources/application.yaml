@@ -1,0 +1,22 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: game-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/game_db
+    username: postgres
+    password: ${GAME_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+rawg:
+  api:
+    key: ${RAWG_API_KEY}
+    base-url: https://api.rawg.io/api

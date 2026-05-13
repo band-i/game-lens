@@ -1,0 +1,4 @@
+CREATE DATABASE game_db;
+CREATE DATABASE backlog_db;
+CREATE DATABASE session_db;
+CREATE DATABASE batch_db;
