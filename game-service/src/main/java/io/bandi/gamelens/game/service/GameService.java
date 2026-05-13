@@ -40,15 +40,15 @@ public class GameService {
                 .orElse(null);
     }
 
-    public boolean findGame(Long rawgId) {
+    public boolean gameExists(Long rawgId) {
         return gameRepository.existsByRawgId(rawgId);
     }
 
-    public Game getGame(Long rawgId) {
+    public Game getGameById(Long rawgId) {
         return gameRepository.findByRawgId(rawgId);
     }
 
-    public List<Game> findAllGames() {
+    public List<Game> getAllGames() {
         return gameRepository.findAll();
     }
 }

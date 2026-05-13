@@ -26,8 +26,8 @@ public class GameController {
 
         if (searchedGame == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else if (gameService.findGame(searchedGame.id())) {
-            game = gameService.getGame(searchedGame.id());
+        } else if (gameService.gameExists(searchedGame.id())) {
+            game = gameService.getGameById(searchedGame.id());
             return new ResponseEntity<>(game, HttpStatus.OK);
         } else {
             game = gameService.saveGame(searchedGame);
@@ -35,9 +35,9 @@ public class GameController {
         }
     }
 
-    @GetMapping(value = "/games/{id}")
-    public ResponseEntity<Game> findGame(@PathVariable("id") Long rawgId) {
-        Game game = gameService.getGame(rawgId);
+    @GetMapping(value = "/games/{rawgId}")
+    public ResponseEntity<Game> getGameById(@PathVariable("rawgId") Long rawgId) {
+        Game game = gameService.getGameById(rawgId);
 
         if (game != null) {
             return new ResponseEntity<>(game, HttpStatus.OK);
@@ -47,8 +47,8 @@ public class GameController {
     }
 
     @GetMapping(value = "/games")
-    public ResponseEntity<List<Game>> findAll() {
-        List<Game> gameList = gameService.findAllGames();
+    public ResponseEntity<List<Game>> getAllGames() {
+        List<Game> gameList = gameService.getAllGames();
 
         return new ResponseEntity<>(gameList, HttpStatus.OK);
     }
