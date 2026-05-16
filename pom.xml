@@ -20,11 +20,8 @@
     </properties>
 
     <modules>
-        <module>api-gateway</module>
         <module>backlog-service</module>
-        <module>batch-service</module>
         <module>game-service</module>
-        <module>session-service</module>
     </modules>
 
     <dependencyManagement>
