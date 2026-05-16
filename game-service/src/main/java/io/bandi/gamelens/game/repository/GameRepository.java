@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GameRepository extends ListCrudRepository<Game, Long> {
-
     Boolean existsByRawgId(Long rawgId);
 
     Game findByRawgId(Long rawgId);
