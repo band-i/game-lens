@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BacklogRepository extends ListCrudRepository<Backlog, Long> {
-
     Boolean existsByGameId(Long gameId);
 
     Backlog findByGameId(Long gameId);
