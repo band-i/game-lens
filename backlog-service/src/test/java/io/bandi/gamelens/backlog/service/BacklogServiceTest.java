@@ -5,6 +5,8 @@ import io.bandi.gamelens.backlog.domain.dto.BacklogRequest;
 import io.bandi.gamelens.backlog.domain.dto.GameServiceResponse;
 import io.bandi.gamelens.backlog.domain.model.Backlog;
 import io.bandi.gamelens.backlog.domain.model.Status;
+import io.bandi.gamelens.backlog.exception.BacklogNotFoundException;
+import io.bandi.gamelens.backlog.exception.GameAlreadyInBacklogException;
 import io.bandi.gamelens.backlog.repository.BacklogRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import org.springframework.web.client.RestClientException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -132,6 +135,42 @@ class BacklogServiceTest {
         List<Backlog> result = backlogService.getAllBacklogs();
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("saveBacklog: throws GameAlreadyInBacklogException when backlog exists")
+    void saveBacklog_throwsWhenBacklogExists() {
+        when(backlogClient.getResponse(1L)).thenReturn(new GameServiceResponse(
+                1L, 1L, "Hades", "http://cover.jpg", 20, null, "PC", null
+        ));
+        when(backlogRepository.existsByGameId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> backlogService.saveBacklog(1L, 1))
+                .isInstanceOf(GameAlreadyInBacklogException.class);
+    }
+
+    @Test
+    @DisplayName("updateBacklog: skips null status and priority")
+    void updateBacklog_skipsNullFields() {
+        Backlog existing = buildBacklog(1L, Status.PENDING);
+        BacklogRequest request = new BacklogRequest(null, null);
+
+        when(backlogRepository.existsByGameId(1L)).thenReturn(true);
+        when(backlogRepository.findByGameId(1L)).thenReturn(existing);
+        when(backlogRepository.save(any(Backlog.class))).thenReturn(existing);
+
+        Backlog result = backlogService.updateBacklog(1L, request);
+
+        assertThat(result.getStatus()).isEqualTo(Status.PENDING);
+    }
+
+    @Test
+    @DisplayName("updateBacklog: throws BacklogNotFoundException when not found")
+    void updateBacklog_throwsWhenNotFound() {
+        when(backlogRepository.existsByGameId(99L)).thenReturn(false);
+
+        assertThatThrownBy(() -> backlogService.updateBacklog(99L, new BacklogRequest(Status.IN_PROGRESS, 1)))
+                .isInstanceOf(BacklogNotFoundException.class);
     }
 
 }
