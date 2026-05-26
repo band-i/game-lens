@@ -42,13 +42,15 @@ class BacklogServiceTest {
         return backlog;
     }
 
-    // --- saveBacklog ---
-
     @Test
     @DisplayName("saveBacklog: persists backlog with PENDING status")
     void saveBacklog_persistsWithPendingStatus() {
         Backlog saved = buildBacklog(1L, Status.PENDING);
         when(backlogRepository.save(any(Backlog.class))).thenReturn(saved);
+
+        when(backlogClient.getResponse(1L)).thenReturn(new GameServiceResponse(
+                1L, 1L, "Hades", "http://cover.jpg", 20, null, "PC", null
+        ));
 
         Backlog result = backlogService.saveBacklog(1L, 1);
 
@@ -57,15 +59,14 @@ class BacklogServiceTest {
         verify(backlogRepository, times(1)).save(any(Backlog.class));
     }
 
-    // --- updateBacklog ---
-
     @Test
     @DisplayName("updateBacklog: updates status and persists")
     void updateBacklog_updatesStatus() {
         Backlog existing = buildBacklog(1L, Status.PENDING);
-        BacklogRequest request = new BacklogRequest(Status.IN_PROGRESS);
+        BacklogRequest request = new BacklogRequest(Status.IN_PROGRESS, 1);
         Backlog updated = buildBacklog(1L, Status.IN_PROGRESS);
 
+        when(backlogRepository.existsByGameId(1L)).thenReturn(true);
         when(backlogRepository.findByGameId(1L)).thenReturn(existing);
         when(backlogRepository.save(any(Backlog.class))).thenReturn(updated);
 
@@ -75,8 +76,6 @@ class BacklogServiceTest {
         verify(backlogRepository, times(1)).save(any(Backlog.class));
     }
 
-    // --- deleteBacklog ---
-
     @Test
     @DisplayName("deleteBacklog: delegates to repository")
     void deleteBacklog_delegatesToRepository() {
@@ -84,8 +83,6 @@ class BacklogServiceTest {
 
         verify(backlogRepository, times(1)).deleteById(1L);
     }
-
-    // --- gameExists ---
 
     @Test
     @DisplayName("gameExists: returns true when game-service responds")
@@ -105,8 +102,6 @@ class BacklogServiceTest {
         assertThat(backlogService.gameExists(1L)).isFalse();
     }
 
-    // --- backlogExists ---
-
     @Test
     @DisplayName("backlogExists: delegates to repository")
     void backlogExists_delegatesToRepository() {
@@ -116,21 +111,18 @@ class BacklogServiceTest {
         verify(backlogRepository).existsByGameId(1L);
     }
 
-    // --- getBacklogById ---
-
     @Test
     @DisplayName("getBacklogById: returns backlog from repository")
     void getBacklogById_returnsBacklog() {
         Backlog backlog = buildBacklog(1L, Status.PENDING);
         when(backlogRepository.findByGameId(1L)).thenReturn(backlog);
+        when(backlogRepository.existsByGameId(1L)).thenReturn(true);
 
         Backlog result = backlogService.getBacklogById(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getGameId()).isEqualTo(1L);
     }
-
-    // --- getAllBacklogs ---
 
     @Test
     @DisplayName("getAllBacklogs: returns all backlogs from repository")

@@ -17,6 +17,14 @@
         <java.version>21</java.version>
         <sonar.organization>band-i</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.exclusions>
+            **/config/**,
+            **/client/**,
+            **/domain/model/**,
+            **/domain/dto/**,
+            **/exception/**,
+            **/*Application.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <modules>

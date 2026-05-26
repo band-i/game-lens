@@ -39,7 +39,7 @@ public class BacklogController {
     /**
      * Adds a game to the backlog.
      *
-     * <p>Returns {@code 201 Created} if new, {@code 200 OK} if already in the backlog,
+     * <p>Returns {@code 201 Created} if new, {@code 409 Conflict} if already in the backlog,
      * or {@code 404 Not Found} if the game does not exist in game-service.
      *
      * @param gameId   RAWG ID of the game
@@ -49,28 +49,19 @@ public class BacklogController {
             summary = "Add a game to the backlog",
             description = """
                     Adds the game to the backlog with PENDING status.
-                    Returns 201 if new, 208 if already exists, 404 if the game is not found in game-service.
+                    Returns 201 if new, 409 if already exists, 404 if the game is not found in game-service.
                     """
     )
     @ApiResponse(responseCode = "201", description = "Game added to backlog")
-    @ApiResponse(responseCode = "208", description = "Game already in backlog")
+    @ApiResponse(responseCode = "409", description = "Game already in backlog")
     @ApiResponse(responseCode = "404", description = "Game not found in game-service")
     @PostMapping
     public ResponseEntity<Backlog> saveBacklog(
             @RequestParam Long gameId,
             @RequestParam(required = false) Integer priority
     ) {
-        if (backlogService.gameExists(gameId)) {
-            if (backlogService.backlogExists(gameId)) {
-                return new ResponseEntity<>(backlogService.getBacklogById(gameId), HttpStatus.OK);
-            } else {
-                Backlog backlog = backlogService.saveBacklog(gameId, priority);
-                return new ResponseEntity<>(backlog, HttpStatus.CREATED);
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        Backlog backlog = backlogService.saveBacklog(gameId, priority);
+        return new ResponseEntity<>(backlog, HttpStatus.CREATED);
     }
 
     /**
@@ -96,12 +87,7 @@ public class BacklogController {
     @ApiResponse(responseCode = "404", description = "No backlog entry for that game")
     @GetMapping(value = "/{gameId}")
     public ResponseEntity<Backlog> getBacklogById(@PathVariable Long gameId) {
-
-        if (backlogService.backlogExists(gameId)) {
-            return new ResponseEntity<>(backlogService.getBacklogById(gameId), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(backlogService.getBacklogById(gameId), HttpStatus.OK);
     }
 
     /**
@@ -120,11 +106,7 @@ public class BacklogController {
             @PathVariable Long gameId,
             @RequestBody BacklogRequest backlogRequest
     ) {
-        if (backlogService.backlogExists(gameId)) {
-            return new ResponseEntity<>(backlogService.updateBacklog(gameId, backlogRequest), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(backlogService.updateBacklog(gameId, backlogRequest), HttpStatus.OK);
     }
 
     /**
