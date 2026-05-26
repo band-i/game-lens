@@ -3,10 +3,11 @@ package io.bandi.gamelens.game.service;
 import io.bandi.gamelens.game.client.GameClient;
 import io.bandi.gamelens.game.domain.dto.RawgGameDto;
 import io.bandi.gamelens.game.domain.model.Game;
+import io.bandi.gamelens.game.exception.GameAlreadyExistsException;
+import io.bandi.gamelens.game.exception.GameNotFoundException;
 import io.bandi.gamelens.game.repository.GameRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,25 +33,33 @@ public class GameService {
      * <p>Only the first platform in the list is stored. Falls back to
      * {@code "Unknown"} if the platforms list is empty.
      *
-     * @param rawgGameDto data returned by the RAWG API
+     * @param name name to search by the RAWG API
      * @return the persisted {@link Game} entity
      */
-    public Game saveGame(RawgGameDto rawgGameDto) {
+    public Game saveGame(String name) {
+        RawgGameDto searchedGame = getInfoGame(name);
+        if (searchedGame == null) {
+            throw new GameNotFoundException(name);
+        }
+
+        if (gameExists(searchedGame.id())) {
+            throw new GameAlreadyExistsException(name, searchedGame.id());
+        }
+
         Game game = new Game();
-        game.setRawgId(rawgGameDto.id());
-        game.setTitle(rawgGameDto.name());
-        game.setCoverUrl(rawgGameDto.backgroundImage());
-        game.setAveragePlaytime(rawgGameDto.playtime());
-        game.setRating(rawgGameDto.rating());
-        game.setPlatform(rawgGameDto.platforms()
+        game.setRawgId(searchedGame.id());
+        game.setTitle(searchedGame.name());
+        game.setCoverUrl(searchedGame.backgroundImage());
+        game.setAveragePlaytime(searchedGame.playtime());
+        game.setRating(searchedGame.rating());
+        game.setReleased(searchedGame.released());
+        game.setPlatform(searchedGame.platforms()
                 .stream()
                 .findFirst()
                 .map(rawgPlatformWrapper ->
-                        rawgPlatformWrapper.platform().name()
-                )
-                .orElse("Unknown")
-        );
-        game.setCreatedAt(LocalDateTime.now());
+                        rawgPlatformWrapper.platform().name())
+                .orElse("Unknown"));
+
         return gameRepository.save(game);
     }
 
@@ -88,6 +97,9 @@ public class GameService {
      * @return the matching {@link Game}, or {@code null} if not found
      */
     public Game getGameById(Long rawgId) {
+        if (!gameExists(rawgId)) {
+            throw new GameNotFoundException(rawgId);
+        }
         return gameRepository.findByRawgId(rawgId);
     }
 

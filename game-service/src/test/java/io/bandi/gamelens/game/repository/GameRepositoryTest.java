@@ -1,15 +1,16 @@
 package io.bandi.gamelens.game.repository;
 
+import io.bandi.gamelens.game.config.JpaAuditingConfig;
 import io.bandi.gamelens.game.domain.model.Game;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:tc:postgresql:17:///gamelens_game"
 })
+@Import(JpaAuditingConfig.class)
 class GameRepositoryTest {
 
     @Autowired
@@ -31,7 +33,6 @@ class GameRepositoryTest {
         game.setAveragePlaytime(20);
         game.setRating(new BigDecimal("4.5"));
         game.setPlatform("PC");
-        game.setCreatedAt(LocalDateTime.now());
         return game;
     }
 
