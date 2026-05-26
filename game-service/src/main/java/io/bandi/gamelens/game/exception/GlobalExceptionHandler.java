@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Centralized exception handler for backlog-service.
+ * Centralized exception handler for game-service.
  *
  * <p>Maps domain exceptions to the appropriate HTTP responses
  * so controllers stay free of error-handling logic.
