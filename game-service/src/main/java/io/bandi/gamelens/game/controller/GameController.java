@@ -1,6 +1,5 @@
 package io.bandi.gamelens.game.controller;
 
-import io.bandi.gamelens.game.domain.dto.RawgGameDto;
 import io.bandi.gamelens.game.domain.model.Game;
 import io.bandi.gamelens.game.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,8 +36,8 @@ public class GameController {
     /**
      * Searches RAWG by name and persists the first result if not already stored.
      *
-     * <p>Returns {@code 201 Created} if the game is new, {@code 200 OK} if it
-     * already exists locally, or {@code 204 No Content} if RAWG finds nothing.
+     * <p>Returns {@code 201 Created} if the game is new, {@code 409 Conflict} if it
+     * already exists locally, or {@code 404 No Content} if RAWG finds nothing.
      *
      * @param name game title to search
      */
@@ -46,26 +45,16 @@ public class GameController {
             summary = "Search and save a game",
             description = """
                     Searches RAWG by name and persists the first result.
-                    Returns 201 if new, 200 if already exists, 204 if RAWG finds nothing.
+                    Returns 201 if new, 409 if already exists, 404 if RAWG finds nothing.
                     """
     )
     @ApiResponse(responseCode = "201", description = "Game saved successfully")
-    @ApiResponse(responseCode = "200", description = "Game already exists in local catalog")
-    @ApiResponse(responseCode = "204", description = "No results found in RAWG")
+    @ApiResponse(responseCode = "409", description = "Game already exists in local catalog")
+    @ApiResponse(responseCode = "404", description = "No results found in RAWG")
     @PostMapping
     public ResponseEntity<Game> searchAndSave(@RequestParam String name) {
-        RawgGameDto searchedGame = gameService.getInfoGame(name);
-        Game game;
-
-        if (searchedGame == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else if (gameService.gameExists(searchedGame.id())) {
-            game = gameService.getGameById(searchedGame.id());
-            return new ResponseEntity<>(game, HttpStatus.OK);
-        } else {
-            game = gameService.saveGame(searchedGame);
-            return new ResponseEntity<>(game, HttpStatus.CREATED);
-        }
+        Game game = gameService.saveGame(name);
+        return new ResponseEntity<>(game, HttpStatus.CREATED);
     }
 
     /**
@@ -83,13 +72,8 @@ public class GameController {
     @ApiResponse(responseCode = "404", description = "Game not found in local catalog")
     @GetMapping(value = "/{rawgId}")
     public ResponseEntity<Game> searchGame(@PathVariable("rawgId") Long rawgId) {
-        Game game = gameService.getGameById(rawgId);
+        return new ResponseEntity<>(gameService.getGameById(rawgId), HttpStatus.OK);
 
-        if (game != null) {
-            return new ResponseEntity<>(game, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     /**
@@ -99,8 +83,6 @@ public class GameController {
     @ApiResponse(responseCode = "200", description = "List of games, empty if none saved yet")
     @GetMapping
     public ResponseEntity<List<Game>> getAllGames() {
-        List<Game> gameList = gameService.getAllGames();
-
-        return new ResponseEntity<>(gameList, HttpStatus.OK);
+        return new ResponseEntity<>(gameService.getAllGames(), HttpStatus.OK);
     }
 }

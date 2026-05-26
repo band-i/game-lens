@@ -1,9 +1,9 @@
 package io.bandi.gamelens.game.controller;
 
-import io.bandi.gamelens.game.domain.dto.RawgGameDto;
-import io.bandi.gamelens.game.domain.dto.RawgPlatformDto;
-import io.bandi.gamelens.game.domain.dto.RawgPlatformWrapper;
 import io.bandi.gamelens.game.domain.model.Game;
+import io.bandi.gamelens.game.exception.GameAlreadyExistsException;
+import io.bandi.gamelens.game.exception.GameNotFoundException;
+import io.bandi.gamelens.game.exception.GlobalExceptionHandler;
 import io.bandi.gamelens.game.service.GameService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -21,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GameController.class)
+@WebMvcTest({GameController.class, GlobalExceptionHandler.class})
 class GameControllerTest {
 
     @Autowired
@@ -31,12 +30,6 @@ class GameControllerTest {
     private GameService gameService;
 
 
-    private RawgGameDto buildDto(Long id, String name) {
-        RawgPlatformDto platform = new RawgPlatformDto("PC");
-        RawgPlatformWrapper wrapper = new RawgPlatformWrapper(platform);
-        return new RawgGameDto(id, name, "http://cover.jpg", new BigDecimal("4.5"), 20, List.of(wrapper));
-    }
-
     private Game buildGame(Long rawgId, String title) {
         Game game = new Game();
         game.setRawgId(rawgId);
@@ -45,41 +38,32 @@ class GameControllerTest {
         return game;
     }
 
-
     @Test
-    @DisplayName("searchAndSave: returns 204 when RAWG finds nothing")
+    @DisplayName("searchAndSave: returns 404 when RAWG finds nothing")
     void searchAndSave_returns204WhenNotFound() throws Exception {
-        when(gameService.getInfoGame("unknown")).thenReturn(null);
+        when(gameService.saveGame("unknown"))
+                .thenThrow(new GameNotFoundException("unknown"));
 
-        mockMvc.perform(post("/api/v1/games").param("name", "unknown"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(post("/api/v1/games")
+                        .param("name", "unknown"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("searchAndSave: returns 200 with game when it already exists")
-    void searchAndSave_returns200WhenGameExists() throws Exception {
-        RawgGameDto dto = buildDto(1L, "Phasmophobia");
-        Game game = buildGame(1L, "Phasmophobia");
-
-        when(gameService.getInfoGame("Phasmophobia")).thenReturn(dto);
-        when(gameService.gameExists(1L)).thenReturn(true);
-        when(gameService.getGameById(1L)).thenReturn(game);
+    @DisplayName("searchAndSave: returns 409 when game already exists")
+    void searchAndSave_returns409WhenGameExists() throws Exception {
+        when(gameService.saveGame("Phasmophobia"))
+                .thenThrow(new GameAlreadyExistsException("Phasmophobia", 1L));
 
         mockMvc.perform(post("/api/v1/games").param("name", "Phasmophobia"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rawgId").value(1L))
-                .andExpect(jsonPath("$.title").value("Phasmophobia"));
+                .andExpect(status().isConflict());
     }
 
     @Test
     @DisplayName("searchAndSave: returns 201 when game is new")
     void searchAndSave_returns201WhenGameIsNew() throws Exception {
-        RawgGameDto dto = buildDto(1L, "Phasmophobia");
         Game game = buildGame(1L, "Phasmophobia");
-
-        when(gameService.getInfoGame("Phasmophobia")).thenReturn(dto);
-        when(gameService.gameExists(1L)).thenReturn(false);
-        when(gameService.saveGame(dto)).thenReturn(game);
+        when(gameService.saveGame("Phasmophobia")).thenReturn(game);
 
         mockMvc.perform(post("/api/v1/games").param("name", "Phasmophobia"))
                 .andExpect(status().isCreated())
@@ -101,7 +85,8 @@ class GameControllerTest {
     @Test
     @DisplayName("searchGame: returns 404 when game does not exist")
     void searchGame_returns404WhenNotFound() throws Exception {
-        when(gameService.getGameById(99L)).thenReturn(null);
+        when(gameService.getGameById(99L))
+                .thenThrow(new GameNotFoundException(99L));
 
         mockMvc.perform(get("/api/v1/games/99"))
                 .andExpect(status().isNotFound());
