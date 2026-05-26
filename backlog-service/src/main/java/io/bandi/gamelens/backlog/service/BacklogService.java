@@ -36,9 +36,8 @@ public class BacklogService {
      * @param gameId   RAWG ID of the game to add
      * @param priority optional priority value, {@code null} if not provided
      * @return the persisted {@link Backlog} entry
-     * @throws GameNotFoundException if game not exists in game-service
+     * @throws GameNotFoundException         if game not exists in game-service
      * @throws GameAlreadyInBacklogException if entry exists for that game
-
      */
     public Backlog saveBacklog(Long gameId, Integer priority) {
         if (!gameExists(gameId)) {
