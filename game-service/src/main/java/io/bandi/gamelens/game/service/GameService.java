@@ -28,13 +28,15 @@ public class GameService {
     }
 
     /**
-     * Persists a game from a RAWG API result.
+     * Searches RAWG by name and persists the first result.
      *
      * <p>Only the first platform in the list is stored. Falls back to
      * {@code "Unknown"} if the platforms list is empty.
      *
-     * @param name name to search by the RAWG API
+     * @param name game title to search
      * @return the persisted {@link Game} entity
+     * @throws GameNotFoundException if RAWG returns no results for that name
+     * @throws GameAlreadyExistsException if the game is already in the local catalog
      */
     public Game saveGame(String name) {
         RawgGameDto searchedGame = getInfoGame(name);
@@ -90,11 +92,9 @@ public class GameService {
     /**
      * Retrieves a game by its RAWG ID.
      *
-     * <p>Call {@link #gameExists(Long)} first — this method returns
-     * {@code null} if no game is found.
-     *
      * @param rawgId the RAWG identifier
-     * @return the matching {@link Game}, or {@code null} if not found
+     * @return the matching {@link Game}
+     * @throws GameNotFoundException if no game is found with that RAWG ID
      */
     public Game getGameById(Long rawgId) {
         if (!gameExists(rawgId)) {
