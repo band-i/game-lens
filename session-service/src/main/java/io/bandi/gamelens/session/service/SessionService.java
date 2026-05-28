@@ -68,6 +68,13 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
+    /**
+     * Retrieves a session by its internal ID.
+     *
+     * @param sessionId internal session ID
+     * @return the matching {@link Session}
+     * @throws SessionNotFoundException if no session exists with that ID
+     */
     public Session getSessionById(Long sessionId) {
         return sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new SessionNotFoundException(sessionId));
