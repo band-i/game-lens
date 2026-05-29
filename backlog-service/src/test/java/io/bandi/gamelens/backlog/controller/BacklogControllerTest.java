@@ -64,7 +64,7 @@ class BacklogControllerTest {
 
     @Test
     @DisplayName("saveBacklog: returns 409 when backlog already exists")
-    void saveBacklog_returns200WhenBacklogExists() throws Exception {
+    void saveBacklog_returns409WhenBacklogExists() throws Exception {
         when(backlogService.saveBacklog(1L, 2))
                 .thenThrow(new GameAlreadyInBacklogException(1L));
 

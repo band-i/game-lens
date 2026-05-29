@@ -30,6 +30,7 @@
     <modules>
         <module>backlog-service</module>
         <module>game-service</module>
+        <module>session-service</module>
     </modules>
 
     <dependencyManagement>
