@@ -10,7 +10,6 @@
     </parent>
     <groupId>io.bandi.gamelens</groupId>
     <artifactId>batch-service</artifactId>
-    <version>0.0.1</version>
 
     <dependencies>
         <dependency>

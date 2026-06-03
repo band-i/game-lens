@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * HTTP client for communication with backlog-service.
  *
- * <p>Used exclusively to verify backlog existence before backlog operations.
+ * <p>Used to fetch all backlog entries for processing by the batch job.
  */
 @Component
 public class BatchBacklogClient {
@@ -22,10 +22,9 @@ public class BatchBacklogClient {
     }
 
     /**
-     * Fetches all backlogs from backlog-service.
+     * Fetches all backlog entries from backlog-service for processing by the batch job.
      *
-     * @return the backlog data, or throws {@link org.springframework.web.client.RestClientException}
-     * if the backlog is not found or backlog-service is unreachable
+     * @return list of backlog entries
      */
     public List<BacklogServiceResponse> getResponse() {
         return backlogRestClient.get()

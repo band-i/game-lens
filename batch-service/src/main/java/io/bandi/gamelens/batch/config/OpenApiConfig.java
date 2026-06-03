@@ -14,6 +14,6 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Game Lens - Batch Service")
                         .version("v1")
-                        .description("User batch management."));
+                        .description("Recommendation pipeline powered by Spring Batch."));
     }
 }

@@ -8,6 +8,15 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Spring Batch job definition for the recommendation pipeline.
+ *
+ * <p>The job runs in two steps:
+ * <ol>
+ *   <li>Clear all existing recommendations.</li>
+ *   <li>Read the backlog, score each game, and persist the results.</li>
+ * </ol>
+ */
 @Configuration
 public class RecommendationJobConfig {
 

@@ -35,62 +35,68 @@ class RecommendationItemProcessorTest {
 
     @Test
     @DisplayName("process: calculates score correctly")
-    void process_calculatesScoreCorrectly() throws Exception {
+    void process_calculatesScoreCorrectly() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(4.5, 20));
 
         Recommendation result = processor.process(buildBacklogResponse(3));
 
         int expected = (int) ((4.5 * 10) + (3 * 5) - (20 * 0.1));
+        assertThat(result).isNotNull();
         assertThat(result.getScore()).isEqualTo(expected);
     }
 
     @Test
     @DisplayName("process: adds high community rating reason when rating above 4")
-    void process_addsHighRatingReason() throws Exception {
+    void process_addsHighRatingReason() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(4.5, 20));
 
         Recommendation result = processor.process(buildBacklogResponse(1));
 
+        assertThat(result).isNotNull();
         assertThat(result.getReason()).contains("high community rating");
     }
 
     @Test
     @DisplayName("process: adds priority reason when priority above 4")
-    void process_addsPriorityReason() throws Exception {
+    void process_addsPriorityReason() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(3.0, 20));
 
         Recommendation result = processor.process(buildBacklogResponse(5));
 
+        assertThat(result).isNotNull();
         assertThat(result.getReason()).contains("your priority");
     }
 
     @Test
     @DisplayName("process: adds short playtime reason when playtime below 10")
-    void process_addsShortPlaytimeReason() throws Exception {
+    void process_addsShortPlaytimeReason() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(3.0, 5));
 
         Recommendation result = processor.process(buildBacklogResponse(1));
 
+        assertThat(result).isNotNull();
         assertThat(result.getReason()).contains("its short playtime");
     }
 
     @Test
     @DisplayName("process: uses default reason when no conditions are met")
-    void process_usesDefaultReasonWhenNoConditionsMet() throws Exception {
+    void process_usesDefaultReasonWhenNoConditionsMet() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(3.0, 20));
 
         Recommendation result = processor.process(buildBacklogResponse(1));
 
+        assertThat(result).isNotNull();
         assertThat(result.getReason()).isEqualTo("Recommended based on overall score");
     }
 
     @Test
     @DisplayName("process: combines multiple reasons")
-    void process_combinesMultipleReasons() throws Exception {
+    void process_combinesMultipleReasons() {
         when(batchGameClient.getResponse(1L)).thenReturn(buildGameResponse(4.5, 5));
 
         Recommendation result = processor.process(buildBacklogResponse(5));
 
+        assertThat(result).isNotNull();
         assertThat(result.getReason()).contains("high community rating");
         assertThat(result.getReason()).contains("your priority");
         assertThat(result.getReason()).contains("its short playtime");

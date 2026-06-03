@@ -32,7 +32,7 @@ class ClearTaskletTest {
 
     @Test
     @DisplayName("execute: deletes all recommendations and returns FINISHED")
-    void execute_deletesAllAndReturnsFinished() throws Exception {
+    void execute_deletesAllAndReturnsFinished() {
         RepeatStatus result = clearTasklet.execute(stepContribution, chunkContext);
 
         verify(repository, times(1)).deleteAll();

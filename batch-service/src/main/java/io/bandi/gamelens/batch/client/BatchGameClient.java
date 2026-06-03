@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 /**
  * HTTP client for communication with game-service.
  *
- * <p>Used exclusively to verify game existence before backlog operations.
+ * <p>Used to fetch game details during recommendation scoring.
  */
 @Component
 public class BatchGameClient {

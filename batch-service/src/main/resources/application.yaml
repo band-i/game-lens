@@ -20,7 +20,9 @@ spring:
       initialize-schema: always
     job:
       enabled: false
-
+recommendation:
+  scheduler:
+    cron: "0 */1 * * * *"
 
 batch-service:
   game-service-url: ${GAME_SERVICE_URL:http://localhost:8081}

@@ -11,6 +11,13 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Computes a recommendation score for each backlog entry.
+ *
+ * <p>Score formula: {@code (rating * 10) + (priority * 5) - (averagePlaytime * 0.1)}.
+ * A human-readable reason is also generated based on which factors
+ * contributed most to the score.
+ */
 @Component
 public class RecommendationItemProcessor implements ItemProcessor<BacklogServiceResponse, Recommendation> {
 
@@ -21,13 +28,16 @@ public class RecommendationItemProcessor implements ItemProcessor<BacklogService
     }
 
     @Override
-    public @Nullable Recommendation process(BacklogServiceResponse item) throws Exception {
+    public @Nullable Recommendation process(BacklogServiceResponse item) {
         Recommendation recommendation = new Recommendation();
         GameServiceResponse response = batchGameClient.getResponse(item.gameId());
 
-        Double rating = response.rating() * 10;
-        Integer priority = item.priority() != null ? item.priority() * 5 : 0;
-        Double averagePlaytime = response.averagePlaytime() * 0.1;
+        double rating = response.rating() * 10;
+        double averagePlaytime = response.averagePlaytime() * 0.1;
+
+        int priorityUnboxed = item.priority() != null ? item.priority() : 0;
+
+        int priority = priorityUnboxed * 5;
 
         recommendation.setGameId(response.id());
         recommendation.setScore((int) (rating + priority - averagePlaytime));
@@ -37,7 +47,7 @@ public class RecommendationItemProcessor implements ItemProcessor<BacklogService
         if (response.rating() > 4) {
             reasons.add("high community rating");
         }
-        if (item.priority() > 4) {
+        if (priorityUnboxed > 4) {
             reasons.add("your priority");
         }
         if (response.averagePlaytime() < 10) {

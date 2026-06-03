@@ -12,6 +12,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+/**
+ * Triggers the recommendation job on a fixed schedule.
+ *
+ * <p>Currently configured to run every minute. Adjust the cron expression
+ * in {@code application.yaml} for production use.
+ */
 @Component
 public class RecommendationScheduler {
 
@@ -23,7 +29,11 @@ public class RecommendationScheduler {
         this.jobOperator = jobOperator;
     }
 
-    @Scheduled(cron = "0 */1 * * * *")
+    /**
+     * Launches the recommendation job with a unique {@code runAt} parameter
+     * so Spring Batch treats each execution as a new job instance.
+     */
+    @Scheduled(cron = "${recommendation.scheduler.cron}")
     public void run() throws JobInstanceAlreadyCompleteException,
             InvalidJobParametersException,
             JobExecutionAlreadyRunningException,

@@ -6,6 +6,9 @@ import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+/**
+ * Persists a chunk of recommendations to the local database.
+ */
 @Component
 public class RecommendationItemWriter implements ItemWriter<Recommendation> {
 

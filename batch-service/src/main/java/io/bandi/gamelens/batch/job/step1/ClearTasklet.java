@@ -8,6 +8,12 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+/**
+ * Tasklet that clears all existing recommendations before each job run.
+ *
+ * <p>Ensures the recommendation table is always a fresh result
+ * of the latest batch execution, with no stale data.
+ */
 @Component
 public class ClearTasklet implements Tasklet {
 
@@ -18,7 +24,7 @@ public class ClearTasklet implements Tasklet {
     }
 
     @Override
-    public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         repository.deleteAll();
         return RepeatStatus.FINISHED;
     }
