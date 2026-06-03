@@ -21,7 +21,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,7 +57,8 @@ class BacklogControllerTest {
                 .thenThrow(new GameNotFoundException(1L));
 
         mockMvc.perform(post("/api/v1/backlog")
-                        .param("gameId", "1"))
+                        .param("gameId", "1")
+                        .param("priority", "4"))
                 .andExpect(status().isNotFound());
     }
 
@@ -79,9 +79,11 @@ class BacklogControllerTest {
     void saveBacklog_returns201WhenBacklogIsNew() throws Exception {
         Backlog backlog = buildBacklog(1L, Status.PENDING);
 
-        when(backlogService.saveBacklog(eq(1L), isNull())).thenReturn(backlog);
+        when(backlogService.saveBacklog(1L, 4)).thenReturn(backlog);
 
-        mockMvc.perform(post("/api/v1/backlog").param("gameId", "1"))
+        mockMvc.perform(post("/api/v1/backlog")
+                        .param("gameId", "1")
+                        .param("priority", "4"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDING"));
     }

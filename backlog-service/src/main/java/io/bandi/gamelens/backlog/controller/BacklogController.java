@@ -43,7 +43,7 @@ public class BacklogController {
      * or {@code 404 Not Found} if the game does not exist in game-service.
      *
      * @param gameId   RAWG ID of the game
-     * @param priority optional priority value
+     * @param priority priority value
      */
     @Operation(
             summary = "Add a game to the backlog",
@@ -58,7 +58,7 @@ public class BacklogController {
     @PostMapping
     public ResponseEntity<Backlog> saveBacklog(
             @RequestParam Long gameId,
-            @RequestParam(required = false) Integer priority
+            @RequestParam Integer priority
     ) {
         Backlog backlog = backlogService.saveBacklog(gameId, priority);
         return new ResponseEntity<>(backlog, HttpStatus.CREATED);
