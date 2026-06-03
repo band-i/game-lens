@@ -23,6 +23,8 @@
             **/domain/model/**,
             **/domain/dto/**,
             **/exception/**,
+            **/job/**,
+            **/scheduler/**
             **/*Application.java
         </sonar.coverage.exclusions>
     </properties>
@@ -31,6 +33,7 @@
         <module>backlog-service</module>
         <module>game-service</module>
         <module>session-service</module>
+        <module>batch-service</module>
     </modules>
 
     <dependencyManagement>
