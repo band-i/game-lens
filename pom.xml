@@ -24,7 +24,7 @@
             **/domain/dto/**,
             **/exception/**,
             **/job/**,
-            **/scheduler/**
+            **/scheduler/**,
             **/*Application.java
         </sonar.coverage.exclusions>
     </properties>
